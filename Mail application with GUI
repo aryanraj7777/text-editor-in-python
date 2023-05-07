@@ -1,0 +1,74 @@
+import smtplib
+import tkinter as tk
+from tkinter import messagebox
+
+
+class MailApp:
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.title("Mail Application")
+        self.window.geometry("400x300")
+
+        # Create labels and entry fields for email credentials
+        self.from_label = tk.Label(self.window, text="From:")
+        self.from_label.pack()
+        self.from_entry = tk.Entry(self.window, width=30)
+        self.from_entry.pack()
+
+        self.password_label = tk.Label(self.window, text="Password:")
+        self.password_label.pack()
+        self.password_entry = tk.Entry(self.window, show="*", width=30)
+        self.password_entry.pack()
+
+        self.to_label = tk.Label(self.window, text="To:")
+        self.to_label.pack()
+        self.to_entry = tk.Entry(self.window, width=30)
+        self.to_entry.pack()
+
+        self.subject_label = tk.Label(self.window, text="Subject:")
+        self.subject_label.pack()
+        self.subject_entry = tk.Entry(self.window, width=30)
+        self.subject_entry.pack()
+
+        # Create a text box for the message body
+        self.message_label = tk.Label(self.window, text="Message:")
+        self.message_label.pack()
+        self.message_text = tk.Text(self.window, height=10, width=50)
+        self.message_text.pack()
+
+        # Create a button to send the email
+        self.send_button = tk.Button(self.window, text="Send", command=self.send_email)
+        self.send_button.pack()
+
+        self.window.mainloop()
+
+    def send_email(self):
+        # Get email credentials and message details from GUI
+        from_email = self.from_entry.get()
+        password = self.password_entry.get()
+        to_email = self.to_entry.get()
+        subject = self.subject_entry.get()
+        message = self.message_text.get("1.0", tk.END)
+
+        try:
+            # Connect to SMTP server and login
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(from_email, password)
+
+            # Create email message
+            email_message = f"From: {from_email}\nTo: {to_email}\nSubject: {subject}\n\n{message}"
+
+            # Send email and close connection
+            server.sendmail(from_email, to_email, email_message)
+            server.quit()
+
+            # Show success message
+            messagebox.showinfo("Success", "Email sent successfully!")
+        except Exception as e:
+            # Show error message
+            messagebox.showerror("Error", f"An error occurred: {e}")
+
+
+if __name__ == "__main__":
+    MailApp()
