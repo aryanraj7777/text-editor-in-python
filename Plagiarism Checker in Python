@@ -1,0 +1,72 @@
+import math
+import os
+import re
+
+def preprocess_text(text):
+    """
+    Preprocesses text by removing non-alphanumeric characters and converting all characters to lowercase.
+    """
+    return re.sub(r"[^a-zA-Z0-9 ]", "", text).lower()
+
+def get_word_counts(text):
+    """
+    Gets a dictionary of word counts for a given text.
+    """
+    words = text.split()
+    word_counts = {}
+    for word in words:
+        if word in word_counts:
+            word_counts[word] += 1
+        else:
+            word_counts[word] = 1
+    return word_counts
+
+def get_cosine_similarity(text1, text2):
+    """
+    Gets the cosine similarity between two texts.
+    """
+    # Preprocess text
+    text1 = preprocess_text(text1)
+    text2 = preprocess_text(text2)
+
+    # Get word counts for both texts
+    word_counts1 = get_word_counts(text1)
+    word_counts2 = get_word_counts(text2)
+
+    # Get set of unique words in both texts
+    unique_words = set(word_counts1.keys()).union(set(word_counts2.keys()))
+
+    # Calculate dot product and magnitudes
+    dot_product = 0
+    magnitude1 = 0
+    magnitude2 = 0
+    for word in unique_words:
+        dot_product += word_counts1.get(word, 0) * word_counts2.get(word, 0)
+        magnitude1 += word_counts1.get(word, 0) ** 2
+        magnitude2 += word_counts2.get(word, 0) ** 2
+
+    # Calculate cosine similarity
+    if magnitude1 == 0 or magnitude2 == 0:
+        return 0
+    else:
+        return dot_product / (math.sqrt(magnitude1) * math.sqrt(magnitude2))
+
+def check_plagiarism(file1_path, file2_path, threshold):
+    """
+    Checks if two text files are plagiarized by calculating the cosine similarity between them.
+    """
+    with open(file1_path, "r") as file1, open(file2_path, "r") as file2:
+        text1 = file1.read()
+        text2 = file2.read()
+        similarity = get_cosine_similarity(text1, text2)
+        if similarity >= threshold:
+            print(f"The two files are plagiarized with a similarity score of {similarity:.2f}.")
+        else:
+            print(f"The two files are not plagiarized with a similarity score of {similarity:.2f}.")
+
+if __name__ == "__main__":
+    # Example usage
+    file1_path = "file1.txt"
+    file2_path = "file2.txt"
+    threshold = 0.8
+    check_plagiarism(file1_path, file2_path, threshold)
