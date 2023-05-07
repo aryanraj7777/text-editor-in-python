@@ -1,1 +1,1 @@
-# text-editor-in-python
+python project
